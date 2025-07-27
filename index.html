@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pregnancy Calendar Generator</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+        background: #000000;
+        color: #ffffff;
+      }
+
+      h2 {
+        margin-bottom: 10px;
+      }
+
+      input[type="date"] {
+        padding: 8px;
+        font-size: 16px;
+      }
+
+      button {
+        padding: 8px 12px;
+        font-size: 16px;
+        margin-left: 10px;
+        cursor: pointer;
+      }
+
+      .table-container {
+        margin-top: 20px;
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        border: 1px solid #000;
+        padding: 8px 10px;
+        text-align: left;
+      }
+
+      th {
+        background-color: #383838;
+      }
+
+      tr:nth-child(even) {
+        background-color: #000;
+      }
+
+      tr.highlight-today {
+        background-color: orchid;
+        color: black;
+        font-weight: bold;
+      }
+
+      tbody tr:hover {
+        background-color: greenyellow;
+        color: black;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Pregnancy Calendar Generator</h2>
+    <label for="start-date">Select Start Date:</label>
+    <input type="date" id="start-date" />
+    <button onclick="handleGenerate()">Generate</button>
+
+    <div class="table-container">
+      <table id="calendar-table"></table>
+    </div>
+
+    <script>
+      const headers = ["Date", "Total Day", "Month", "Week", "Day"];
+      const STORAGE_KEY = "pregnancyStartDate";
+
+      function formatDate(dateObj) {
+        return (
+          `${(dateObj.getMonth() + 1).toString().padStart(2, "0")}/` +
+          `${dateObj.getDate().toString().padStart(2, "0")}/` +
+          `${dateObj.getFullYear()}`
+        );
+      }
+
+      function generateCalendar(startDateStr) {
+        const table = document.getElementById("calendar-table");
+        table.innerHTML = "";
+
+        const startDate = new Date(startDateStr);
+        const today = new Date();
+        const todayFormatted = formatDate(today);
+        const days = 280;
+        const rows = [];
+
+        for (let i = 0; i < days; i++) {
+          const currentDate = new Date(startDate);
+          currentDate.setDate(startDate.getDate() + 1 + i);
+
+          const formattedDate = formatDate(currentDate);
+          const totalDay = i + 1;
+          const week = Math.floor(i / 7);
+          const day = (i % 7) + 1;
+          const month = Math.floor(i / 30) + 1;
+
+          rows.push({
+            Date: formattedDate,
+            Month: month,
+            Week: week,
+            Day: day,
+            "Total Day": totalDay,
+          });
+        }
+
+        // Header
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        headers.forEach((h) => {
+          const th = document.createElement("th");
+          th.textContent = h;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // Body
+        const tbody = document.createElement("tbody");
+        rows.forEach((row) => {
+          const tr = document.createElement("tr");
+
+          if (row.Date === todayFormatted) {
+            tr.classList.add("highlight-today");
+          }
+
+          headers.forEach((h) => {
+            const td = document.createElement("td");
+            td.textContent = row[h] ?? "";
+            tr.appendChild(td);
+          });
+
+          tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+      }
+
+      function handleGenerate() {
+        const input = document.getElementById("start-date");
+        const selectedDate = input.value;
+        if (!selectedDate) {
+          alert("Please select a valid start date.");
+          return;
+        }
+
+        // Save to localStorage
+        localStorage.setItem(STORAGE_KEY, selectedDate);
+        generateCalendar(selectedDate);
+      }
+
+      // Auto-load on page refresh
+      window.onload = () => {
+        const savedDate = localStorage.getItem(STORAGE_KEY);
+        if (savedDate) {
+          document.getElementById("start-date").value = savedDate;
+          generateCalendar(savedDate);
+        }
+      };
+    </script>
+  </body>
+</html>
