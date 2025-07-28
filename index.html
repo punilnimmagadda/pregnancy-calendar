@@ -2,68 +2,122 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pregnancy Calendar Generator</title>
     <style>
       body {
         font-family: Arial, sans-serif;
-        padding: 20px;
+        font-size: 12px;
+        padding: 10px;
         max-width: 900px;
         margin: auto;
-        background: #000000;
-        color: #ffffff;
+        background: #000;
+        color: #fff;
       }
-
+      .sticky {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: inherit;
+      }
+      .form-row.sticky {
+        background: #000;
+        padding: 20px 0;
+      }
       h2 {
-        margin-bottom: 10px;
+        margin-top: 0;
+        color: orchid;
       }
-
-      input[type="date"] {
+      .filters {
+        background: #000;
+        padding: 10px 0;
+        overflow-x: auto;
+        display: flex;
+        gap: 10px;
+      }
+      .filter-card {
+        border: 1px solid #383838;
+        background: #222;
+        color: #fff;
+        border-radius: 6px;
         padding: 8px;
-        font-size: 16px;
-      }
-
-      button {
-        padding: 8px 12px;
-        font-size: 16px;
-        margin-left: 10px;
         cursor: pointer;
+        min-width: 140px;
+        text-align: center;
+        transition: background 0.2s;
       }
-
+      .filter-card:hover {
+        background: orchid;
+        color: black;
+      }
       .table-container {
         margin-top: 20px;
         overflow-x: auto;
       }
-
       table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
       }
-
       th,
       td {
         border: 1px solid #000;
         padding: 8px 10px;
         text-align: left;
       }
-
       th {
         background-color: #383838;
       }
-
       tr:nth-child(even) {
         background-color: #141414;
       }
-
       tr.highlight-today {
         background-color: orchid;
         color: black;
         font-weight: bold;
       }
-
       tbody tr:hover {
         background-color: greenyellow;
         color: black;
+      }
+      .view-switch {
+        margin: 20px 0 10px 0;
+        display: flex;
+        gap: 10px;
+      }
+      .view-btn {
+        background: #222;
+        color: #fff;
+        border: 1px solid #383838;
+        border-radius: 6px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.2s;
+      }
+      .view-btn.active,
+      .view-btn:hover {
+        background: orchid;
+        color: black;
+      }
+      .summary-container {
+        margin-top: 20px;
+        background: #222;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 500px;
+      }
+      .summary-container h3 {
+        margin-top: 0;
+        color: orchid;
+      }
+      .summary-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .summary-list li:not(:last-child) {
+        margin-bottom: 10px;
       }
     </style>
   </head>
@@ -73,13 +127,46 @@
     <input type="date" id="start-date" />
     <button onclick="handleGenerate()">Generate</button>
 
-    <div class="table-container">
+    <div class="view-switch">
+      <button
+        class="view-btn active"
+        id="summary-view-btn"
+        onclick="switchView('summary')"
+      >
+        Summary
+      </button>
+      <button
+        class="view-btn"
+        id="table-view-btn"
+        onclick="switchView('table')"
+      >
+        Calendar Table
+      </button>
+    </div>
+
+    <div id="filters" class="filters sticky" style="display: none"></div>
+
+    <div
+      id="summary-container"
+      class="summary-container"
+      style="display: block"
+    ></div>
+    <div class="table-container" id="table-container" style="display: none">
       <table id="calendar-table"></table>
     </div>
 
     <script>
-      const headers = ["Date", "Total Day", "Month", "Week", "Day"];
+      const headers = [
+        "Date",
+        "Day No.",
+        "Month",
+        "Week",
+        "Day of Week",
+        "Trimester",
+      ];
       const STORAGE_KEY = "pregnancyStartDate";
+      const MONTHS = 10;
+      const DAYS_TOTAL = 280;
 
       function formatDate(dateObj) {
         return (
@@ -89,6 +176,110 @@
         );
       }
 
+      function getTrimester(dayNo) {
+        if (dayNo <= 91) return "1st";
+        if (dayNo <= 189) return "2nd";
+        return "3rd";
+      }
+
+      function getPregnancyStage(startDateStr) {
+        if (!startDateStr) return null;
+        const startDate = new Date(startDateStr);
+        const today = new Date();
+        const diffMs = today - startDate;
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        if (diffDays < 0) return null;
+        const dayNo = diffDays + 1;
+        const trimester = getTrimester(dayNo);
+        const month = Math.floor(diffDays / 30) + 1;
+        const week = Math.floor(diffDays / 7) + 1;
+        // calculate end date of pregnancy as 280 days from start date
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + DAYS_TOTAL);
+        // Caluculate estimatedDue date (EDD)
+        const estimatedDueDate = new Date(startDate);
+        estimatedDueDate.setDate(startDate.getDate() + DAYS_TOTAL + 1);
+        let stage = "";
+        if (dayNo < 1) stage = "Not started";
+        else if (dayNo > DAYS_TOTAL) stage = "Completed";
+        else stage = "Ongoing";
+        return {
+          dayNo,
+          trimester,
+          month,
+          week,
+          stage,
+          startDate,
+          endDate,
+          estimatedDueDate,
+          today,
+        };
+      }
+
+      function renderSummary(startDateStr) {
+        const container = document.getElementById("summary-container");
+        container.innerHTML = "";
+        const stage = getPregnancyStage(startDateStr);
+        if (!stage) {
+          container.innerHTML =
+            "<em>Please select a valid start date and click Generate.</em>";
+          return;
+        }
+        const {
+          dayNo,
+          trimester,
+          month,
+          week,
+          stage: status,
+          startDate,
+          endDate,
+          estimatedDueDate,
+          today,
+        } = stage;
+        let summaryHtml = `<h3>Pregnancy Summary</h3><ul class="summary-list">`;
+        if (status === "Not started") {
+          summaryHtml += `<li>Your pregnancy has not started yet.</li>`;
+        } else if (status === "Completed") {
+          summaryHtml += `<li>Your pregnancy has completed (${DAYS_TOTAL} days).</li>`;
+        } else {
+          summaryHtml += `<li>You are on <strong>day ${dayNo}</strong> of your pregnancy.</li>`;
+          summaryHtml += `<li>You are currently in your <strong>${trimester} trimester</strong>.</li>`;
+          summaryHtml += `<li>You are in your <strong>${month}${
+            month === 1 ? "st" : month === 2 ? "nd" : month === 3 ? "rd" : "th"
+          } month</strong> of pregnancy.</li>`;
+          let fetusWeeks = Math.max(week - 1, 0);
+          const fetusDays = Math.max(dayNo - 7, 0) % 7;
+          if (fetusDays === 0) {
+            fetusWeeks = fetusWeeks + 1;
+            summaryHtml += `<li>Fetus Age: <strong>${fetusWeeks} week${
+              fetusWeeks === 1 ? "" : "s"
+            }</strong></li>`;
+          } else {
+            summaryHtml += `<li>Fetus Age: <strong>${fetusWeeks} week${
+              fetusWeeks === 1 ? "" : "s"
+            } and ${fetusDays} day${fetusDays === 1 ? "" : "s"}</strong></li>`;
+          }
+          summaryHtml += `<li>Start Date: <strong>${formatDate(
+            new Date(startDate.setDate(startDate.getDate() + 1))
+          )}</strong></li>`;
+          summaryHtml += `<li>End Date: <strong>${formatDate(
+            new Date(endDate.setDate(endDate.getDate()))
+          )}</strong></li>`;
+          summaryHtml += `<li>Today's Date: <strong>${formatDate(
+            today
+          )}</strong></li>`;
+          summaryHtml += `<li>Estimated Due Date: <strong>${formatDate(
+            estimatedDueDate
+          )}</strong></li>`;
+          summaryHtml += `<li>Days Remaining: <strong>${Math.max(
+            DAYS_TOTAL - dayNo,
+            0
+          )}</strong></li>`;
+        }
+        summaryHtml += "</ul>";
+        container.innerHTML = summaryHtml;
+      }
+
       function generateCalendar(startDateStr) {
         const table = document.getElementById("calendar-table");
         table.innerHTML = "";
@@ -96,8 +287,9 @@
         const startDate = new Date(startDateStr);
         const today = new Date();
         const todayFormatted = formatDate(today);
-        const days = 280;
+        const days = DAYS_TOTAL;
         const rows = [];
+        const monthAnchors = {};
 
         for (let i = 0; i < days; i++) {
           const currentDate = new Date(startDate);
@@ -105,16 +297,23 @@
 
           const formattedDate = formatDate(currentDate);
           const totalDay = i + 1;
-          const week = Math.floor(i / 7);
+          const week = Math.floor(i / 7) + 1;
           const day = (i % 7) + 1;
           const month = Math.floor(i / 30) + 1;
+          const trimester = getTrimester(totalDay);
+
+          if (!monthAnchors[month]) {
+            monthAnchors[month] = `month-row-${month}`;
+          }
 
           rows.push({
             Date: formattedDate,
             Month: month,
             Week: week,
-            Day: day,
-            "Total Day": totalDay,
+            "Day of Week": day,
+            "Day No.": totalDay,
+            Trimester: trimester,
+            rowId: monthAnchors[month],
           });
         }
 
@@ -131,11 +330,15 @@
 
         // Body
         const tbody = document.createElement("tbody");
-        rows.forEach((row) => {
+        rows.forEach((row, idx) => {
           const tr = document.createElement("tr");
 
           if (row.Date === todayFormatted) {
             tr.classList.add("highlight-today");
+          }
+
+          if (idx === 0 || rows[idx - 1].Month !== row.Month) {
+            tr.id = row.rowId;
           }
 
           headers.forEach((h) => {
@@ -148,6 +351,43 @@
         });
 
         table.appendChild(tbody);
+
+        generateFilters(startDate, monthAnchors, rows);
+      }
+
+      function generateFilters(startDate, monthAnchors, rows) {
+        const filtersDiv = document.getElementById("filters");
+        filtersDiv.innerHTML = "";
+
+        for (let month = 1; month <= MONTHS; month++) {
+          const monthRows = rows.filter((r) => r.Month === month);
+          if (monthRows.length === 0) continue;
+          const start = monthRows[0].Date;
+          const end = monthRows[monthRows.length - 1].Date;
+
+          const card = document.createElement("div");
+          card.className = "filter-card";
+          card.innerHTML = `
+            <div class="filter-title">
+              <strong>Month ${month}</strong>
+            </div>
+            <div class="filter-dates">
+              ${start} - ${end}
+            </div>
+          `;
+          card.onclick = () => {
+            const targetRow = document.getElementById(monthAnchors[month]);
+            if (targetRow) {
+              const yOffset = -160; // adjust offset as needed
+              const y =
+                targetRow.getBoundingClientRect().top +
+                window.pageYOffset +
+                yOffset;
+              window.scrollTo({ top: y, behavior: "smooth" });
+            }
+          };
+          filtersDiv.appendChild(card);
+        }
       }
 
       function handleGenerate() {
@@ -157,19 +397,55 @@
           alert("Please select a valid start date.");
           return;
         }
-
-        // Save to localStorage
         localStorage.setItem(STORAGE_KEY, selectedDate);
+        renderSummary(selectedDate);
         generateCalendar(selectedDate);
+        // Show filters only if table view is active
+        const tableContainer = document.getElementById("table-container");
+        const filtersDiv = document.getElementById("filters");
+        if (tableContainer.style.display === "block") {
+          filtersDiv.style.display = "flex";
+        } else {
+          filtersDiv.style.display = "none";
+        }
       }
 
-      // Auto-load on page refresh
+      function switchView(view) {
+        const summaryBtn = document.getElementById("summary-view-btn");
+        const tableBtn = document.getElementById("table-view-btn");
+        const summaryContainer = document.getElementById("summary-container");
+        const tableContainer = document.getElementById("table-container");
+        const filtersDiv = document.getElementById("filters");
+        if (view === "summary") {
+          summaryContainer.style.display = "block";
+          tableContainer.style.display = "none";
+          summaryBtn.classList.add("active");
+          tableBtn.classList.remove("active");
+          filtersDiv.style.display = "none";
+        } else {
+          summaryContainer.style.display = "none";
+          tableContainer.style.display = "block";
+          summaryBtn.classList.remove("active");
+          tableBtn.classList.add("active");
+          // Only show filters if calendar is generated
+          const savedDate = localStorage.getItem(STORAGE_KEY);
+          if (savedDate) {
+            filtersDiv.style.display = "flex";
+          } else {
+            filtersDiv.style.display = "none";
+          }
+        }
+      }
+
       window.onload = () => {
         const savedDate = localStorage.getItem(STORAGE_KEY);
         if (savedDate) {
           document.getElementById("start-date").value = savedDate;
+          renderSummary(savedDate);
           generateCalendar(savedDate);
         }
+        // Hide filters on load
+        document.getElementById("filters").style.display = "none";
       };
     </script>
   </body>
