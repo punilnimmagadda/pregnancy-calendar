@@ -4,7 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pregnancy Calendar Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.0/jspdf.plugin.autotable.min.js"></script>
     <style>
+      /* Make the scrollbar look better and modern */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #383838;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+      ::-webkit-scrollbar-track {
+        background: #222;
+      }
+      ::-webkit-scrollbar-corner {
+        background: #000;
+      }
+      /* General styles */
+
       body {
         font-family: Arial, sans-serif;
         font-size: 12px;
@@ -50,6 +73,13 @@
         background: orchid;
         color: black;
       }
+      .export-buttons {
+        margin: 20px 0 10px 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+      }
       .table-container {
         margin-top: 20px;
         overflow-x: auto;
@@ -85,7 +115,7 @@
         display: flex;
         gap: 10px;
       }
-      .view-btn {
+      button {
         background: #222;
         color: #fff;
         border: 1px solid #383838;
@@ -96,7 +126,7 @@
         transition: background 0.2s;
       }
       .view-btn.active,
-      .view-btn:hover {
+      button:hover {
         background: orchid;
         color: black;
       }
@@ -145,6 +175,12 @@
     </div>
 
     <div id="filters" class="filters sticky" style="display: none"></div>
+
+    <div class="export-buttons" id="export-buttons" style="display: none">
+      <span>Export:</span>
+      <button onclick="exportTableToPDF()">Export PDF</button>
+      <button onclick="exportTableToExcel()">Export Excel</button>
+    </div>
 
     <div
       id="summary-container"
@@ -378,7 +414,7 @@
           card.onclick = () => {
             const targetRow = document.getElementById(monthAnchors[month]);
             if (targetRow) {
-              const yOffset = -160; // adjust offset as needed
+              const yOffset = -80; // adjust offset as needed
               const y =
                 targetRow.getBoundingClientRect().top +
                 window.pageYOffset +
@@ -403,10 +439,13 @@
         // Show filters only if table view is active
         const tableContainer = document.getElementById("table-container");
         const filtersDiv = document.getElementById("filters");
+        const exportButtons = document.getElementById("export-buttons");
         if (tableContainer.style.display === "block") {
           filtersDiv.style.display = "flex";
+          exportButtons.style.display = "block";
         } else {
           filtersDiv.style.display = "none";
+          exportButtons.style.display = "none";
         }
       }
 
@@ -416,25 +455,44 @@
         const summaryContainer = document.getElementById("summary-container");
         const tableContainer = document.getElementById("table-container");
         const filtersDiv = document.getElementById("filters");
+        const exportButtons = document.getElementById("export-buttons");
         if (view === "summary") {
           summaryContainer.style.display = "block";
           tableContainer.style.display = "none";
           summaryBtn.classList.add("active");
           tableBtn.classList.remove("active");
           filtersDiv.style.display = "none";
+          exportButtons.style.display = "none";
         } else {
           summaryContainer.style.display = "none";
           tableContainer.style.display = "block";
           summaryBtn.classList.remove("active");
           tableBtn.classList.add("active");
-          // Only show filters if calendar is generated
+          // Only show filters and export buttons if calendar is generated
           const savedDate = localStorage.getItem(STORAGE_KEY);
           if (savedDate) {
             filtersDiv.style.display = "flex";
+            exportButtons.style.display = "flex";
           } else {
             filtersDiv.style.display = "none";
+            exportButtons.style.display = "none";
           }
         }
+      }
+
+      function exportTableToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.autoTable({ html: "#calendar-table" });
+        doc.save("pregnancy_calendar.pdf");
+      }
+
+      function exportTableToExcel() {
+        const table = document.getElementById("calendar-table");
+        const wb = XLSX.utils.table_to_book(table, {
+          sheet: "Pregnancy Calendar",
+        });
+        XLSX.writeFile(wb, "pregnancy_calendar.xlsx");
       }
 
       window.onload = () => {
@@ -444,8 +502,9 @@
           renderSummary(savedDate);
           generateCalendar(savedDate);
         }
-        // Hide filters on load
+        // Hide filters and export buttons on load
         document.getElementById("filters").style.display = "none";
+        document.getElementById("export-buttons").style.display = "none";
       };
     </script>
   </body>
