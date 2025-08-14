@@ -14,7 +14,7 @@
 }
 
 .header__container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: var(--spacing-md) var(--spacing-lg);
   display: flex;
@@ -24,6 +24,10 @@
 
   @media (min-width: 768px) {
     padding: var(--spacing-lg) var(--spacing-xl);
+  }
+
+  @media (min-width: 1200px) {
+    padding: var(--spacing-xl) var(--spacing-xxl);
   }
 }
 
@@ -397,10 +401,10 @@
 }
 
 /* Focus management for keyboard navigation */
-.header__theme-dropdown[aria-hidden='false'] .header__theme-option:first-child,
-.header__settings-dropdown[aria-hidden='false'] .header__settings-option:first-child {
-  // Auto-focus first option when dropdown opens (handled by JS if needed)
-}
+// .header__theme-dropdown[aria-hidden='false'] .header__theme-option:first-child,
+// .header__settings-dropdown[aria-hidden='false'] .header__settings-option:first-child {
+//   // Auto-focus first option when dropdown opens (handled by JS if needed)
+// }
 
 /* Print styles */
 @media print {

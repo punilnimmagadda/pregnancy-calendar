@@ -1,1 +1,206 @@
-<p>summary-view works!</p>
+<div class="summary-view" *ngIf="summary">
+  <div class="summary-view__container">
+    <!-- Header Section -->
+    <div class="summary-view__header">
+      <h2 class="summary-view__title">Your Pregnancy Journey</h2>
+      <p class="summary-view__subtitle">Track your progress and important milestones</p>
+    </div>
+
+    <!-- Progress Card -->
+    <div class="card card--elevated summary-view__progress-card">
+      <div class="card__header">
+        <h3 class="card__title">Current Status</h3>
+      </div>
+      <div class="card__body">
+        <div class="progress-overview">
+          <!-- Gestational Age -->
+          <div class="progress-overview__item">
+            <div class="progress-overview__label">Current Age</div>
+            <div class="progress-overview__value">{{ summary.currentGestationalAge }}</div>
+          </div>
+
+          <!-- Trimester -->
+          <div class="progress-overview__item">
+            <div class="progress-overview__label">Trimester</div>
+            <div class="progress-overview__value">
+              {{ getTrismesterDisplay(summary.currentTrimester) }}
+            </div>
+          </div>
+
+          <!-- Due Date -->
+          <div class="progress-overview__item">
+            <div class="progress-overview__label">Due Date</div>
+            <div class="progress-overview__value">{{ summary.formattedDueDate }}</div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div class="progress-bar-label">
+            <span>Pregnancy Progress</span>
+            <span class="progress-percentage">{{ summary.progressPercentage }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-bar__fill"
+              [style.width.%]="summary.progressPercentage"
+              [attr.aria-valuenow]="summary.progressPercentage"
+              [attr.aria-valuemin]="0"
+              [attr.aria-valuemax]="100"
+              role="progressbar"
+              [attr.aria-label]="
+                'Pregnancy progress: ' + summary.progressPercentage + ' percent complete'
+              "
+            ></div>
+          </div>
+          <div class="progress-bar-info">
+            <span>{{ summary.daysCompleted }} days completed</span>
+            <span>{{ summary.daysRemaining }} days remaining</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two Column Layout for Tablets and Desktop -->
+    <div class="summary-view__columns">
+      <!-- Upcoming Milestones -->
+      <div class="card card--elevated summary-view__milestones-card">
+        <div class="card__header">
+          <h3 class="card__title">
+            <span class="card__title-icon" aria-hidden="true">🎯</span>
+            Upcoming Milestones
+          </h3>
+        </div>
+        <div class="card__body">
+          <div
+            class="milestones-list"
+            *ngIf="summary.upcomingMilestones.length > 0; else noMilestones"
+          >
+            <div
+              *ngFor="let milestone of summary.upcomingMilestones; trackBy: trackByMilestone"
+              class="milestone-item"
+            >
+              <div class="milestone-item__marker" aria-hidden="true"></div>
+              <div class="milestone-item__content">
+                <p class="milestone-item__text">{{ milestone }}</p>
+              </div>
+            </div>
+          </div>
+          <ng-template #noMilestones>
+            <div class="empty-state">
+              <div class="empty-state__icon" aria-hidden="true">🎉</div>
+              <p class="empty-state__text">
+                You're near the end of your pregnancy journey! No major milestones remaining.
+              </p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Next Appointments -->
+      <div class="card card--elevated summary-view__appointments-card">
+        <div class="card__header">
+          <h3 class="card__title">
+            <span class="card__title-icon" aria-hidden="true">📅</span>
+            Next Appointments
+          </h3>
+        </div>
+        <div class="card__body">
+          <div
+            class="appointments-list"
+            *ngIf="summary.nextAppointments.length > 0; else noAppointments"
+          >
+            <div
+              *ngFor="let appointment of summary.nextAppointments; trackBy: trackByAppointment"
+              class="appointment-item"
+            >
+              <div class="appointment-item__marker" aria-hidden="true"></div>
+              <div class="appointment-item__content">
+                <p class="appointment-item__text">{{ appointment }}</p>
+              </div>
+            </div>
+          </div>
+          <ng-template #noAppointments>
+            <div class="empty-state">
+              <div class="empty-state__icon" aria-hidden="true">✅</div>
+              <p class="empty-state__text">
+                No scheduled appointments found. Consult your healthcare provider for your
+                personalized schedule.
+              </p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Information Cards -->
+    <div class="summary-view__info-grid">
+      <!-- Current Trimester Info -->
+      <div class="info-card info-card--{{ summary.currentTrimester }}">
+        <div class="info-card__header">
+          <h4 class="info-card__title">
+            {{ getTrismesterDisplay(summary.currentTrimester) }} Trimester
+          </h4>
+        </div>
+        <div class="info-card__body">
+          <p class="info-card__description">
+            {{ getTrimesterDescription(summary.currentTrimester) }}
+          </p>
+          <ul class="info-card__features">
+            <li *ngFor="let feature of getTrimesterFeatures(summary.currentTrimester)">
+              {{ feature }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Important Reminders -->
+      <div class="info-card info-card--reminders">
+        <div class="info-card__header">
+          <h4 class="info-card__title">
+            <span class="info-card__icon" aria-hidden="true">💡</span>
+            Important Reminders
+          </h4>
+        </div>
+        <div class="info-card__body">
+          <ul class="info-card__reminders">
+            <li>Take prenatal vitamins daily</li>
+            <li>Stay hydrated (8-10 glasses of water)</li>
+            <li>Get adequate rest and sleep</li>
+            <li>Avoid alcohol, smoking, and certain medications</li>
+            <li>Contact your healthcare provider with concerns</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical Disclaimer -->
+    <div class="summary-view__disclaimer">
+      <div class="disclaimer-card">
+        <div class="disclaimer-card__header">
+          <span class="disclaimer-card__icon" aria-hidden="true">⚠️</span>
+          <strong class="disclaimer-card__title">Medical Disclaimer</strong>
+        </div>
+        <div class="disclaimer-card__body">
+          <p>
+            This information is for educational purposes only and based on standard 40-week
+            pregnancy calculations. Individual pregnancies vary significantly. Always consult your
+            healthcare provider for personalized medical advice, proper prenatal care, and any
+            pregnancy-related concerns.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading/Error States -->
+<div class="summary-view__empty" *ngIf="!summary">
+  <div class="empty-state empty-state--large">
+    <div class="empty-state__icon" aria-hidden="true">📊</div>
+    <h3 class="empty-state__title">No Pregnancy Data Available</h3>
+    <p class="empty-state__description">
+      Please set up your pregnancy information to view your summary.
+    </p>
+  </div>
+</div>
