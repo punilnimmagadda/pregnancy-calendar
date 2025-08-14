@@ -1,0 +1,8 @@
+# Run prettier format check
+npm run format:check
+
+# Run ESLint
+npm run lint
+
+# Run tests with coverage
+npm run test:coverage -- --watch=false --browsers=ChromeHeadless

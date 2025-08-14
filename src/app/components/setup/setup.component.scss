@@ -1,0 +1,429 @@
+/**
+ * Setup component styles using BEM methodology
+ * Mobile-first responsive design for first-time user onboarding
+ */
+
+.setup {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
+
+  @media (min-width: 768px) {
+    padding: var(--spacing-xl) var(--spacing-lg);
+  }
+}
+
+.setup__container {
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 25px var(--color-shadow);
+  overflow: hidden;
+  animation: slideInUp 0.6s ease-out;
+
+  @media (min-width: 768px) {
+    max-width: 700px;
+  }
+}
+
+.setup__header {
+  padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-lg);
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--color-background);
+
+  @media (min-width: 768px) {
+    padding: var(--spacing-xxl) var(--spacing-xl) var(--spacing-xl);
+  }
+}
+
+.setup__title {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.2;
+  color: var(--color-background);
+}
+
+.setup__description {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  margin: 0;
+  color: var(--color-background);
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
+}
+
+.setup__form {
+  padding: var(--spacing-xl) var(--spacing-lg);
+
+  @media (min-width: 768px) {
+    padding: var(--spacing-xxl) var(--spacing-xl);
+  }
+}
+
+/* Theme selection styles */
+.setup__theme-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.setup__theme-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    gap: var(--spacing-lg);
+  }
+}
+
+.setup__theme-option {
+  flex: 1;
+
+  .form-radio {
+    margin: 0;
+
+    input[type='radio'] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+  }
+}
+
+.setup__theme-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background-color: var(--color-surface-elevated);
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--color-shadow);
+  }
+
+  // Selected state
+  .setup__theme-option input[type='radio']:checked + & {
+    border-color: var(--color-primary);
+    background-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-primary);
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  @media (min-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--spacing-lg);
+  }
+}
+
+.setup__theme-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+
+  @media (min-width: 768px) {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+.setup__theme-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  min-width: 0; // Allow text to wrap
+}
+
+.setup__theme-name {
+  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+
+  @media (min-width: 768px) {
+    font-size: 1.125rem;
+  }
+}
+
+.setup__theme-description {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Medical disclaimer styles */
+.setup__disclaimer {
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  border-left: 4px solid var(--color-warning);
+}
+
+.setup__disclaimer-title {
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-warning);
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  &::before {
+    content: '⚠️';
+    font-size: 1.25rem;
+  }
+}
+
+.setup__disclaimer-text {
+  margin-bottom: var(--spacing-lg);
+
+  p {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-secondary);
+  }
+}
+
+.setup__disclaimer-list {
+  margin: 0;
+  padding-left: var(--spacing-lg);
+  color: var(--color-text-secondary);
+
+  li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.5;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* Form actions */
+.setup__actions {
+  margin-top: var(--spacing-xl);
+}
+
+/* Additional information section */
+.setup__info {
+  padding: 0 var(--spacing-lg) var(--spacing-xl);
+
+  @media (min-width: 768px) {
+    padding: 0 var(--spacing-xl) var(--spacing-xxl);
+  }
+}
+
+.setup__details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.setup__details-summary {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-surface-elevated);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  transition: var(--transition-fast);
+
+  // Hide default marker
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  // Custom arrow
+  &::before {
+    content: '▶';
+    display: inline-block;
+    width: 1em;
+    margin-right: var(--spacing-sm);
+    transition: var(--transition-fast);
+    color: var(--color-primary);
+  }
+
+  &:hover {
+    background-color: var(--color-surface-hover);
+  }
+}
+
+.setup__details[open] .setup__details-summary::before {
+  transform: rotate(90deg);
+}
+
+.setup__details-content {
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+
+  p {
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  ul {
+    margin: 0 0 var(--spacing-md) var(--spacing-lg);
+    color: var(--color-text-secondary);
+
+    li {
+      margin-bottom: var(--spacing-xs);
+      line-height: 1.5;
+    }
+  }
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* Form input error states */
+.form-input--error {
+  border-color: var(--color-error) !important;
+  box-shadow: 0 0 0 2px rgba(var(--color-error), 0.1) !important;
+}
+
+/* Loading button state */
+.btn.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: var(--radius-full);
+    animation: spin 1s linear infinite;
+    color: var(--color-background);
+  }
+}
+
+/* Animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .setup__container {
+    animation: none;
+  }
+
+  .setup__theme-label {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .setup__details-summary::before {
+    transition: none;
+  }
+
+  @keyframes slideInUp {
+    from,
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes spin {
+    from,
+    to {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .setup__container {
+    border-width: 2px;
+  }
+
+  .setup__theme-label {
+    border-width: 2px;
+  }
+
+  .setup__disclaimer {
+    border-width: 2px;
+    border-left-width: 4px;
+  }
+}
+
+/* Focus management */
+.setup__theme-label:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .setup {
+    background: white;
+    padding: 0;
+  }
+
+  .setup__container {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .setup__header {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+  }
+
+  .setup__actions {
+    display: none;
+  }
+}

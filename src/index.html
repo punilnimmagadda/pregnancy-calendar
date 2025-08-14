@@ -1,13 +1,252 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>PregnancyCalendar</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pregnancy Calendar - Track Your Journey</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Professional pregnancy calendar app to track your 280-day journey with milestones, appointments, and fetal development information."
+    />
+    <meta
+      name="keywords"
+      content="pregnancy, calendar, tracker, fetal development, prenatal, maternity, LMP, due date"
+    />
+    <meta name="author" content="Pregnancy Calendar App" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Pregnancy Calendar - Track Your Journey" />
+    <meta
+      property="og:description"
+      content="Professional pregnancy calendar app to track your 280-day journey with milestones and fetal development."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://your-domain.github.io/pregnancy-calendar" />
+    <meta
+      property="og:image"
+      content="https://your-domain.github.io/pregnancy-calendar/assets/og-image.png"
+    />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pregnancy Calendar - Track Your Journey" />
+    <meta
+      name="twitter:description"
+      content="Professional pregnancy calendar app to track your 280-day journey."
+    />
+    <meta
+      name="twitter:image"
+      content="https://your-domain.github.io/pregnancy-calendar/assets/twitter-image.png"
+    />
+
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
+    <!-- <link rel="manifest" href="/assets/site.webmanifest" /> -->
+    <link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#d4a574" />
+    <meta name="msapplication-TileColor" content="#0f0f0f" />
+    <meta name="theme-color" content="#0f0f0f" />
+
+    <!-- Web App Manifest -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Pregnancy Calendar" />
+    <meta name="application-name" content="Pregnancy Calendar" />
+
+    <!-- Preload Critical Resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <!-- Security Headers -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' data: blob:;
+    connect-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  "
+    />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <!-- <meta http-equiv="X-Frame-Options" content="DENY"> -->
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+    <!-- Performance Hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Pregnancy Calendar",
+        "description": "Professional pregnancy calendar app to track your 280-day journey with milestones, appointments, and fetal development information.",
+        "url": "https://your-domain.github.io/pregnancy-calendar",
+        "applicationCategory": "HealthApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "Pregnancy Calendar Team"
+        }
+      }
+    </script>
+
+    <!-- Critical CSS Inlined -->
+    <style>
+      /* Critical above-the-fold styles */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #0f0f0f;
+        color: #ffffff;
+        line-height: 1.6;
+      }
+
+      /* Loading spinner styles */
+      .app-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #0f0f0f;
+        z-index: 9999;
+      }
+
+      .app-loading__spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(212, 165, 116, 0.3);
+        border-top: 3px solid #d4a574;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      .app-loading__text {
+        margin-top: 16px;
+        color: #cccccc;
+        text-align: center;
+        font-size: 14px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Hide app root until loaded */
+      app-root:not(.loaded) {
+        display: none;
+      }
+
+      /* Remove loading screen once app is loaded */
+      app-root.loaded ~ .app-loading {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Application Root -->
+    <app-root></app-root>
+
+    <!-- Loading Screen -->
+    <div class="app-loading">
+      <div>
+        <div class="app-loading__spinner" aria-hidden="true"></div>
+        <div class="app-loading__text" role="status" aria-live="polite">
+          Loading Pregnancy Calendar...
+        </div>
+      </div>
+    </div>
+
+    <!-- Fallback for JavaScript disabled -->
+    <noscript>
+      <div
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: #0f0f0f;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: system-ui;
+          text-align: center;
+          padding: 20px;
+        "
+      >
+        <div>
+          <h1 style="color: #d4a574; margin-bottom: 16px">📱 JavaScript Required</h1>
+          <p style="margin-bottom: 16px; max-width: 500px">
+            This Pregnancy Calendar application requires JavaScript to function properly. Please
+            enable JavaScript in your browser settings and reload the page.
+          </p>
+          <p style="color: #888; font-size: 14px">
+            This app uses client-side calculations to protect your privacy - no data is sent to
+            external servers.
+          </p>
+        </div>
+      </div>
+    </noscript>
+
+    <!-- Service Worker Registration (Future Enhancement) -->
+    <script>
+      // Register service worker for offline functionality (future enhancement)
+      // if ('serviceWorker' in navigator) {
+      //   window.addEventListener('load', () => {
+      //     navigator.serviceWorker
+      //       .register('/sw.js')
+      //       .then(registration => {
+      //         console.log('SW registered: ', registration);
+      //       })
+      //       .catch(registrationError => {
+      //         console.log('SW registration failed: ', registrationError);
+      //       });
+      //   });
+      // }
+
+      // Mark app as loaded once Angular initializes
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const appRoot = document.querySelector('app-root');
+          if (appRoot) {
+            appRoot.classList.add('loaded');
+          }
+        }, 100);
+      });
+    </script>
+  </body>
 </html>
