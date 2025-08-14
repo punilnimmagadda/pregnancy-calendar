@@ -2,6 +2,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserPreferences, ThemeColor } from '../../models/pregnancy.models';
 import { ThemeService } from '../../services/theme/theme.service';
+import { parseLocalDate } from '../../utilities/parse-date';
+import { PregnancyCalculatorService } from '../../services/pregnancy-calculator/pregnancy-calculator.service';
 
 /**
  * Application header component
@@ -11,128 +13,7 @@ import { ThemeService } from '../../services/theme/theme.service';
   selector: 'app-header',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <header class="header" role="banner">
-      <div class="header__container">
-        <!-- App Logo and Title -->
-        <div class="header__brand">
-          <div class="header__logo" aria-hidden="true">🤱</div>
-          <div class="header__title-group">
-            <h1 class="header__title">Pregnancy Calendar</h1>
-            <p class="header__subtitle" *ngIf="preferences">
-              {{ getCurrentGestationalAge() }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Header Actions -->
-        <div class="header__actions" *ngIf="preferences">
-          <!-- Theme Selector -->
-          <div
-            class="header__theme-selector"
-            [class.header__theme-selector--open]="isThemeSelectorOpen"
-          >
-            <button
-              type="button"
-              class="header__theme-button"
-              (click)="toggleThemeSelector()"
-              [attr.aria-expanded]="isThemeSelectorOpen"
-              aria-haspopup="true"
-              aria-label="Select theme color"
-            >
-              <div
-                class="header__theme-preview"
-                [style.background]="getCurrentThemeColor()"
-                aria-hidden="true"
-              ></div>
-              <span class="header__theme-text" aria-hidden="true">Theme</span>
-              <span class="header__theme-arrow" aria-hidden="true">▼</span>
-            </button>
-
-            <!-- Theme Options Dropdown -->
-            <div
-              class="header__theme-dropdown"
-              role="menu"
-              [attr.aria-hidden]="!isThemeSelectorOpen"
-            >
-              <button
-                *ngFor="let theme of availableThemes"
-                type="button"
-                class="header__theme-option"
-                [class.header__theme-option--active]="preferences.themeColor === theme.value"
-                (click)="selectTheme(theme.value)"
-                role="menuitem"
-                [attr.aria-label]="'Select ' + theme.label + ' theme: ' + theme.description"
-              >
-                <div
-                  class="header__theme-option-preview"
-                  [style.background]="theme.primaryColor"
-                  aria-hidden="true"
-                ></div>
-                <div class="header__theme-option-info">
-                  <span class="header__theme-option-name">{{ theme.label }}</span>
-                  <span class="header__theme-option-desc">{{ theme.description }}</span>
-                </div>
-                <span
-                  class="header__theme-option-check"
-                  *ngIf="preferences?.themeColor === theme.value"
-                  aria-hidden="true"
-                >
-                  ✓
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Settings Menu -->
-          <div class="header__settings" [class.header__settings--open]="isSettingsOpen">
-            <button
-              type="button"
-              class="header__settings-button"
-              (click)="toggleSettings()"
-              [attr.aria-expanded]="isSettingsOpen"
-              aria-haspopup="true"
-              aria-label="Open settings menu"
-            >
-              <span class="header__settings-icon" aria-hidden="true">⚙️</span>
-              <span class="sr-only">Settings</span>
-            </button>
-
-            <!-- Settings Dropdown -->
-            <div class="header__settings-dropdown" role="menu" [attr.aria-hidden]="!isSettingsOpen">
-              <button
-                type="button"
-                class="header__settings-option"
-                (click)="requestPreferencesReset()"
-                role="menuitem"
-              >
-                <span class="header__settings-option-icon" aria-hidden="true">🔄</span>
-                <span class="header__settings-option-text">Reset Preferences</span>
-              </button>
-
-              <a
-                href="#"
-                class="header__settings-option"
-                (click)="showHelp($event)"
-                role="menuitem"
-              >
-                <span class="header__settings-option-icon" aria-hidden="true">❓</span>
-                <span class="header__settings-option-text">Help & Info</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Click outside handler -->
-      <div
-        class="header__overlay"
-        *ngIf="isThemeSelectorOpen || isSettingsOpen"
-        (click)="closeAllDropdowns()"
-        aria-hidden="true"
-      ></div>
-    </header>
-  `,
+  templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
   host: {
     '(document:click)': 'onDocumentClick($event)',
@@ -154,7 +35,10 @@ export class HeaderComponent {
   isThemeSelectorOpen = false;
   isSettingsOpen = false;
 
-  constructor(private themeService: ThemeService) {
+  constructor(
+    private themeService: ThemeService,
+    private pregnancyCalculatorService: PregnancyCalculatorService
+  ) {
     this.availableThemes = this.themeService.getAvailableThemes();
   }
 
@@ -165,20 +49,9 @@ export class HeaderComponent {
   getCurrentGestationalAge(): string {
     if (!this.preferences?.lmpDate) return '';
 
-    try {
-      const lmpDate = new Date(this.preferences.lmpDate);
-      const today = new Date();
-      const timeDiff = today.getTime() - lmpDate.getTime();
-      const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-
-      const weeks = Math.floor(daysDiff / 7);
-      const days = daysDiff % 7;
-
-      return `${weeks} weeks ${days} days`;
-    } catch (error) {
-      console.error('Error calculating gestational age:', error);
-      return '';
-    }
+    return this.pregnancyCalculatorService.calculateGestationalAge(
+      parseLocalDate(this.preferences.lmpDate)
+    ).formatted;
   }
 
   /**

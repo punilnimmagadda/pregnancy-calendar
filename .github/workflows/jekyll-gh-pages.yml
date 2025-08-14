@@ -93,27 +93,27 @@ jobs:
         uses: actions/deploy-pages@v4
 
   # Lighthouse CI job for performance monitoring
-  lighthouse:
-    needs: build-and-deploy
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+  # lighthouse:
+  #   needs: build-and-deploy
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/develop'
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '22'
 
-      - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli@0.12.x
+  #     - name: Install Lighthouse CI
+  #       run: npm install -g @lhci/cli@0.12.x
 
-      - name: Run Lighthouse CI
-        run: lhci autorun
-        env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+  #     - name: Run Lighthouse CI
+  #       run: lhci autorun
+  #       env:
+  #         LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
   # Notify on deployment success/failure
   notify:

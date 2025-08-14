@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PregnancyDay, UserPreferences, MonthFilter } from '../../models/pregnancy.models';
 import { PregnancyCalculatorService } from '../../services/pregnancy-calculator/pregnancy-calculator.service';
+import { parseLocalDate } from '../../utilities/parse-date';
 
 /**
  * Table view component that displays detailed pregnancy calendar
@@ -47,7 +48,7 @@ export class TableViewComponent implements OnInit, OnChanges {
     }
 
     // Generate month filters
-    const lmpDate = new Date(this.preferences.lmpDate);
+    const lmpDate = parseLocalDate(this.preferences.lmpDate);
     this.monthFilters = this.pregnancyCalculatorService.generateMonthFilters(lmpDate);
 
     // Initialize filtered days

@@ -67,13 +67,19 @@ export class PregnancyCalculatorService {
     totalDays: number;
     formatted: string;
   } {
+    lmpDate = new Date(lmpDate.getFullYear(), lmpDate.getMonth(), lmpDate.getDate());
+    currentDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate()
+    );
     const timeDifference = currentDate.getTime() - lmpDate.getTime();
-    const totalDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    const totalDays = Math.round(timeDifference / (1000 * 60 * 60 * 24));
 
     const weeks = Math.floor(totalDays / this.DAYS_PER_WEEK);
     const days = totalDays % this.DAYS_PER_WEEK;
 
-    const formatted = `${weeks} weeks ${days} days`;
+    const formatted = `${weeks} weeks ${days + 1} days`;
 
     return { weeks, days, totalDays, formatted };
   }

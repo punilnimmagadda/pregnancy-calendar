@@ -20,6 +20,7 @@ import { HeaderComponent } from './components/header/header.component';
 import { StorageService } from './services/storage/storage.service';
 import { ThemeService } from './services/theme/theme.service';
 import { PregnancyCalculatorService } from './services/pregnancy-calculator/pregnancy-calculator.service';
+import { parseLocalDate } from './utilities/parse-date';
 
 /**
  * Main application component that orchestrates the pregnancy calendar app
@@ -247,7 +248,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
 
         try {
-          const lmpDate = new Date(state.preferences.lmpDate);
+          const lmpDate = parseLocalDate(state.preferences.lmpDate);
           return this.pregnancyCalculatorService.generatePregnancyCalendar(lmpDate);
         } catch (error) {
           console.error('Failed to generate pregnancy calendar:', error);
@@ -269,7 +270,7 @@ export class AppComponent implements OnInit, OnDestroy {
         }
 
         try {
-          const lmpDate = new Date(state.preferences.lmpDate);
+          const lmpDate = parseLocalDate(state.preferences.lmpDate);
           return this.pregnancyCalculatorService.generatePregnancySummary(lmpDate);
         } catch (error) {
           console.error('Failed to generate pregnancy summary:', error);

@@ -105,12 +105,12 @@ import { ExportService } from '../../services/export/export.service';
       </div>
 
       <!-- Click outside overlay -->
-      <div
+      <!-- <div
         class="floating-nav__overlay"
         *ngIf="isExportMenuOpen"
         (click)="closeExportMenu()"
         aria-hidden="true"
-      ></div>
+      ></div> -->
     </div>
   `,
   styleUrls: ['./floating-navigation.component.scss'],

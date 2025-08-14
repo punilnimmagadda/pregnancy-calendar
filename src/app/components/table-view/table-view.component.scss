@@ -43,14 +43,9 @@
 }
 
 .table-view__title {
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
   margin-bottom: var(--spacing-sm);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .table-view__subtitle {
@@ -120,7 +115,6 @@
 .pregnancy-table {
   margin: 0;
   width: 100%;
-  min-width: 800px;
 
   @media (min-width: 1024px) {
     min-width: 100%;

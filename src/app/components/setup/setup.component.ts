@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserPreferences, ThemeColor } from '../../models/pregnancy.models';
 import { ThemeService } from '../../services/theme/theme.service';
+import { parseLocalDate } from '../../utilities/parse-date';
 
 /**
  * Setup component for first-time users
@@ -12,161 +13,7 @@ import { ThemeService } from '../../services/theme/theme.service';
   selector: 'app-setup',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  template: `
-    <div class="setup">
-      <div class="setup__container">
-        <div class="setup__header">
-          <h1 class="setup__title">Welcome to Your Pregnancy Calendar</h1>
-          <p class="setup__description">
-            Let's set up your personalized pregnancy journey tracker. We'll calculate everything
-            based on your Last Menstrual Period (LMP) date using standard medical guidelines.
-          </p>
-        </div>
-
-        <form [formGroup]="setupForm" (ngSubmit)="onSubmit()" class="setup__form" novalidate>
-          <!-- LMP Date Input -->
-          <div class="form-group">
-            <label for="lmpDate" class="form-label form-label--required">
-              Last Menstrual Period (LMP) Date
-            </label>
-            <input
-              id="lmpDate"
-              type="date"
-              formControlName="lmpDate"
-              class="form-input"
-              [class.form-input--error]="isFieldInvalid('lmpDate')"
-              [max]="maxLmpDate"
-              [min]="minLmpDate"
-              aria-describedby="lmpDate-help lmpDate-error"
-              required
-            />
-            <small id="lmpDate-help" class="form-help">
-              Enter the first day of your last menstrual period. This is used to calculate your
-              pregnancy timeline and due date.
-            </small>
-            <span
-              *ngIf="isFieldInvalid('lmpDate')"
-              id="lmpDate-error"
-              class="form-error"
-              role="alert"
-            >
-              {{ getFieldError('lmpDate') }}
-            </span>
-          </div>
-
-          <!-- Theme Color Selection -->
-          <div class="form-group">
-            <fieldset class="setup__theme-fieldset">
-              <legend class="form-label">Choose Your Theme</legend>
-              <p class="form-help mb--md">
-                Select a color theme for your pregnancy calendar. You can change this later.
-              </p>
-
-              <div class="setup__theme-options">
-                <div *ngFor="let theme of availableThemes" class="setup__theme-option">
-                  <div class="form-radio">
-                    <input
-                      type="radio"
-                      [id]="'theme-' + theme.value"
-                      [value]="theme.value"
-                      formControlName="themeColor"
-                      (change)="onThemePreview(theme.value)"
-                    />
-                    <label [for]="'theme-' + theme.value" class="setup__theme-label">
-                      <div
-                        class="setup__theme-preview"
-                        [style.background]="theme.primaryColor"
-                      ></div>
-                      <div class="setup__theme-info">
-                        <strong class="setup__theme-name">{{ theme.label }}</strong>
-                        <span class="setup__theme-description">{{ theme.description }}</span>
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </fieldset>
-          </div>
-
-          <!-- Medical Disclaimer -->
-          <div class="setup__disclaimer">
-            <div class="setup__disclaimer-content">
-              <h3 class="setup__disclaimer-title">Important Medical Disclaimer</h3>
-              <div class="setup__disclaimer-text">
-                <p>
-                  <strong>This pregnancy calendar is for informational purposes only.</strong>
-                </p>
-                <ul class="setup__disclaimer-list">
-                  <li>
-                    All calculations are based on a standard 40-week (280-day) pregnancy timeline
-                  </li>
-                  <li>Individual pregnancies may vary significantly from these estimates</li>
-                  <li>This tool does not replace professional medical care or advice</li>
-                  <li>
-                    Always consult with your healthcare provider for personalized medical guidance
-                  </li>
-                  <li>Seek immediate medical attention for any pregnancy-related concerns</li>
-                </ul>
-              </div>
-
-              <div class="form-checkbox">
-                <input
-                  type="checkbox"
-                  id="disclaimerAccepted"
-                  formControlName="disclaimerAccepted"
-                  required
-                />
-                <label for="disclaimerAccepted">
-                  I understand and acknowledge this medical disclaimer
-                  <span class="text--error">*</span>
-                </label>
-              </div>
-
-              <span *ngIf="isFieldInvalid('disclaimerAccepted')" class="form-error" role="alert">
-                You must acknowledge the medical disclaimer to continue
-              </span>
-            </div>
-          </div>
-
-          <!-- Form Actions -->
-          <div class="setup__actions">
-            <button
-              type="submit"
-              class="btn btn--primary btn--large btn--full-width"
-              [disabled]="setupForm.invalid || isSubmitting"
-              [class.loading]="isSubmitting"
-            >
-              <span *ngIf="!isSubmitting">Start My Pregnancy Journey</span>
-              <span *ngIf="isSubmitting" class="sr-only">Setting up your calendar...</span>
-            </button>
-          </div>
-        </form>
-
-        <!-- Additional Information -->
-        <div class="setup__info">
-          <details class="setup__details">
-            <summary class="setup__details-summary">Why do we need your LMP date?</summary>
-            <div class="setup__details-content">
-              <p>
-                The Last Menstrual Period (LMP) date is the medical standard for calculating
-                pregnancy timelines because:
-              </p>
-              <ul>
-                <li>It's typically easier to remember than conception date</li>
-                <li>Most medical professionals use this method</li>
-                <li>It provides the most accurate gestational age calculations</li>
-                <li>All standard pregnancy milestones are based on LMP dating</li>
-              </ul>
-              <p>
-                Your pregnancy is calculated as starting from the first day of your LMP, even though
-                conception typically occurs about 2 weeks later.
-              </p>
-            </div>
-          </details>
-        </div>
-      </div>
-    </div>
-  `,
+  templateUrl: './setup.component.html',
   styleUrls: ['./setup.component.scss'],
 })
 export class SetupComponent implements OnInit {
@@ -215,8 +62,8 @@ export class SetupComponent implements OnInit {
    * @private
    */
   private setDateConstraints(): void {
-    const today = new Date();
-    const oneYearAgo = new Date();
+    const today = parseLocalDate();
+    const oneYearAgo = parseLocalDate();
     oneYearAgo.setFullYear(today.getFullYear() - 1);
 
     // Maximum LMP date is today (very early pregnancy)
@@ -248,9 +95,9 @@ export class SetupComponent implements OnInit {
       return null; // Let required validator handle empty values
     }
 
-    const selectedDate = new Date(control.value);
-    const today = new Date();
-    const oneYearAgo = new Date();
+    const selectedDate = parseLocalDate(control.value);
+    const today = parseLocalDate();
+    const oneYearAgo = parseLocalDate();
     oneYearAgo.setFullYear(today.getFullYear() - 1);
 
     // Reset time to compare dates only
